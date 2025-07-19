@@ -40,36 +40,19 @@ func (a *App) RegisterTaskCreationListener() {
 				return
 			}
 
-			if _, ok := args[0].(string); !ok {
-				fmt.Println("Received task is not a string")
+			if task, ok := args[0].(string); ok {
+				fmt.Println(task)
+				newTask := handlers.CreateNewTask(task)
+				fmt.Printf(
+					"The new task: %v for %v \n",
+					newTask.Title,
+					newTask.DueDate,
+				)
+
 				return
 			}
 
-			fmt.Printf(
-				"The new task: %v \n",
-				args[0],
-			)
+			fmt.Println("Received task is not a string")
 		},
 	)
 }
-
-// todo: replace the sync call by event emit/on
-func (a *App) WailsEmitTaskWithDescription() string {
-	task := handlers.CreateNewTask()
-
-	return task.Description
-}
-
-// func (a *App) WailsAsyncTask() error {
-// newChan := make(chan struct{})
-
-// go func() {
-// 	runtime.EventsEmit(
-// 		a.ctx,
-// 		"createNewTask",
-// 		"qsdsqdsd",
-// 	)
-// close(newChan)
-// }()
-// <-newChan
-// }

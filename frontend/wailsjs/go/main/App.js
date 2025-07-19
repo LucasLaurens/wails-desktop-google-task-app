@@ -9,7 +9,3 @@ export function Greet(arg1) {
 export function RegisterTaskCreationListener() {
   return window['go']['main']['App']['RegisterTaskCreationListener']();
 }
-
-export function WailsEmitTaskWithDescription() {
-  return window['go']['main']['App']['WailsEmitTaskWithDescription']();
-}

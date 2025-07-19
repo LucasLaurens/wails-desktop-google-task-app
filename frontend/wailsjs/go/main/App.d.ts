@@ -4,5 +4,3 @@
 export function Greet(arg1:string):Promise<string>;
 
 export function RegisterTaskCreationListener():Promise<void>;
-
-export function WailsEmitTaskWithDescription():Promise<string>;
