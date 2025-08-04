@@ -6,6 +6,10 @@ export function Greet(arg1) {
   return window['go']['main']['App']['Greet'](arg1);
 }
 
+export function RegisterGoogleTaskServiceProvider() {
+  return window['go']['main']['App']['RegisterGoogleTaskServiceProvider']();
+}
+
 export function RegisterTaskCreationListener() {
   return window['go']['main']['App']['RegisterTaskCreationListener']();
 }
