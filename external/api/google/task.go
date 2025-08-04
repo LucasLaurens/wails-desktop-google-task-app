@@ -39,7 +39,7 @@ func GetClient(config *oauth2.Config) *http.Client {
 	// The file token.json stores the user's access and refresh tokens, and is
 	// created automatically when the authorization flow completes for the first
 	// time.
-	newTokenFileName := "token.json"
+	newTokenFileName := "external/api/google/token.json"
 	token, err := newTokenFromFile(newTokenFileName)
 	if err != nil {
 		token = getTokenFromWeb(config)
@@ -67,18 +67,25 @@ func newTokenFromFile(tokenFileName string) (*oauth2.Token, error) {
 func getTokenFromWeb(config *oauth2.Config) *oauth2.Token {
 	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	fmt.Printf(
-		"Go to the following link in your browser then type the authorization code: %v",
+		"Go to the following link in your browser then type the authorization code: %v \n",
 		authURL,
 	)
 
 	var authCode string
 	if _, err := fmt.Scan(&authCode); err != nil {
-		log.Fatalf("Unable to read authorization code: %v", err)
+		fmt.Printf(
+			"Unable to read authorization code: %v \n",
+			err,
+		)
 	}
 
 	token, err := config.Exchange(context.TODO(), authCode)
 	if err != nil {
-		log.Fatalf("Unable to retrieve token from web: %v", err)
+		fmt.Printf(
+			"Unable to retrieve token from web: %v \n",
+			err,
+		)
+
 	}
 
 	return token
@@ -99,6 +106,8 @@ func saveToken(tokenFileName string, token *oauth2.Token) {
 
 	defer file.Close()
 
-	// store web token into an internal file
-	json.NewEncoder(file).Encode(token)
+	if token != nil {
+		// store web token into an internal file
+		json.NewEncoder(file).Encode(token)
+	}
 }
