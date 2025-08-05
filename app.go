@@ -62,7 +62,7 @@ func (a *App) RegisterGoogleTaskServiceProvider() (api.TaskServiceWrapper, error
 		)
 	}
 
-	client := api.GetClient(config)
+	client := api.GetClient(a.ctx, config)
 	taskService, err := tasks.NewService(
 		a.ctx,
 		option.WithHTTPClient(client),
