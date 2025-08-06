@@ -54,7 +54,7 @@ func (a *App) RegisterGoogleTaskServiceProvider() (api.TaskServiceWrapper, error
 	}
 
 	// If modifying these scopes, delete your previously saved token.json.
-	config, err := google.ConfigFromJSON(readByte, tasks.TasksReadonlyScope)
+	config, err := google.ConfigFromJSON(readByte, tasks.TasksScope)
 	if err != nil {
 		return api.TaskServiceWrapper{}, fmt.Errorf(
 			"unable to parse client secret file to config: %v",
