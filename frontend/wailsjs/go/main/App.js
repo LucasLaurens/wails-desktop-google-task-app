@@ -10,6 +10,6 @@ export function RegisterGoogleTaskServiceProvider() {
   return window['go']['main']['App']['RegisterGoogleTaskServiceProvider']();
 }
 
-export function RegisterTaskCreationListener() {
-  return window['go']['main']['App']['RegisterTaskCreationListener']();
+export function RegisterTaskCreationListener(arg1) {
+  return window['go']['main']['App']['RegisterTaskCreationListener'](arg1);
 }

@@ -6,4 +6,4 @@ export function Greet(arg1:string):Promise<string>;
 
 export function RegisterGoogleTaskServiceProvider():Promise<api.TaskServiceWrapper>;
 
-export function RegisterTaskCreationListener():Promise<void>;
+export function RegisterTaskCreationListener(arg1:api.TaskServiceWrapper):Promise<void>;

@@ -1,16 +1,22 @@
 package handlers
 
 import (
-	"calandar-desktop-task/internal/models"
+	"log"
 	"time"
+
+	"google.golang.org/api/tasks/v1"
 )
 
-func CreateNewTask(Description string) *models.TaskDescription {
-	return &models.TaskDescription{
-		Title:       Description,
-		Description: Description,
-		DueDate:     time.Now().AddDate(0, 0, 1).Format(time.RFC3339),
-		Priority:    "", // low, medium, high
-		Tags:        []string{},
+func CreateNewTask(Title string) *tasks.Task {
+	loc, err := time.LoadLocation("Europe/Paris")
+	if err != nil {
+		log.Fatalf("failed to load location: %v", err)
+	}
+
+	nowParis := time.Now().AddDate(0, 0, 7).In(loc)
+
+	return &tasks.Task{
+		Title: Title,
+		Due:   nowParis.Format(time.RFC3339),
 	}
 }

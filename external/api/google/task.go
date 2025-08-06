@@ -18,22 +18,40 @@ type TaskServiceWrapper struct {
 	Service *tasks.Service
 }
 
-func (taskService *TaskServiceWrapper) GetTasksList(max int64) error {
-	id := "MTMxMzU1MTg2Nzk4NzI1MTc0MTg6MDow"
+func (taskService *TaskServiceWrapper) InsertNewTask(task *tasks.Task) {
+	// todo: declare as global
+	// todo: fix getting env
+	id := os.Getenv("TASK_LIST_ID")
+	if id == "" {
+		id = "MTMxMzU1MTg2Nzk4NzI1MTc0MTg6MDow"
+	}
+
+	_, err := taskService.Service.Tasks.Insert(id, task).Do()
+
+	if err != nil {
+		log.Fatalf("unable to insert a new task: %v", err)
+	}
+}
+
+func (taskService *TaskServiceWrapper) GetTasksList(max int64) {
+	id := os.Getenv("TASK_LIST_ID")
+	if id == "" {
+		id = "MTMxMzU1MTg2Nzk4NzI1MTc0MTg6MDow"
+	}
+
 	list, err := taskService.Service.Tasks.List(id).Do()
 	if err != nil {
-		return fmt.Errorf("unable to retrieve task lists. %v", err)
+		log.Fatalf("unable to retrieve task lists. %v", err)
 	}
 
 	fmt.Println("Task Lists:")
 	if len(list.Items) <= 0 {
-		return fmt.Errorf("no tasks ar available")
+		fmt.Println("no tasks ar available")
 	}
 
 	for _, item := range list.Items {
 		fmt.Printf("%s (%s)\n", item.Title, item.Status)
 	}
-	return nil
 }
 
 // Retrieve a token, saves the token, then returns the generated client.

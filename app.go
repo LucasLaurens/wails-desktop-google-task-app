@@ -35,7 +35,7 @@ func (a *App) startup(ctx context.Context) {
 	// test to get the first ten tasks
 	taskService.GetTasksList(10)
 
-	a.RegisterTaskCreationListener()
+	a.RegisterTaskCreationListener(taskService)
 }
 
 // Greet returns a greeting for the given name
@@ -79,7 +79,7 @@ func (a *App) RegisterGoogleTaskServiceProvider() (api.TaskServiceWrapper, error
 	}, nil
 }
 
-func (a *App) RegisterTaskCreationListener() {
+func (a *App) RegisterTaskCreationListener(taskService api.TaskServiceWrapper) {
 	runtime.EventsOn(
 		a.ctx,
 		"createTask",
@@ -95,8 +95,11 @@ func (a *App) RegisterTaskCreationListener() {
 				fmt.Printf(
 					"The new task: %v for %v \n",
 					newTask.Title,
-					newTask.DueDate,
+					newTask.Due,
 				)
+
+				taskService.InsertNewTask(newTask)
+				taskService.GetTasksList(10)
 
 				return
 			}
