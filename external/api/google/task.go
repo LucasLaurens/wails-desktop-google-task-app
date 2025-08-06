@@ -1,15 +1,14 @@
 package api
 
 import (
+	"calandar-desktop-task/internal/server"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
-	"net"
 	"net/http"
 	"os"
 
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/oauth2"
 	"google.golang.org/api/tasks/v1"
 )
@@ -69,50 +68,7 @@ func newTokenFromFile(tokenFileName string) (*oauth2.Token, error) {
 
 // Request a token from the web, then returns the retrieved token.
 func getTokenFromWeb(ctx context.Context, config *oauth2.Config) *oauth2.Token {
-	// Start local server on random port
-	// todo: move domain and port from env
-	listener, err := net.Listen("tcp", "localhost:8080")
-
-	if err != nil {
-		log.Fatalf("%s", err)
-	}
-
-	defer listener.Close()
-
-	redirectURL := "http://" + listener.Addr().String()
-	fmt.Printf("The redirect url is : %s", redirectURL)
-	config.RedirectURL = redirectURL
-
-	// Generate the auth URL
-	authURL := config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
-	fmt.Println("Opening browser for authorization:", authURL)
-
-	// Open system browser in Wails
-	runtime.BrowserOpenURL(ctx, authURL)
-
-	codeCh := make(chan string)
-	go func() {
-		http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-			code := r.URL.Query().Get("code")
-			fmt.Fprint(w, "You can close this window now.")
-			codeCh <- code
-		})
-		_ = http.Serve(listener, nil)
-	}()
-
-	// Wait for code
-	code := <-codeCh
-	if code == "" {
-		log.Fatal("no authorization code received")
-		return nil
-	}
-
-	// Exchange code for token
-	token, err := config.Exchange(context.Background(), code)
-	if err != nil {
-		log.Fatalf("unable to retrieve token from web: %w", err)
-		return nil
-	}
+	token := server.Handle(config, ctx)
 
 	return token
 }
