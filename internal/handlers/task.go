@@ -8,6 +8,7 @@ import (
 )
 
 func CreateNewTask(Title string) *tasks.Task {
+	// todo: replace by env var
 	loc, err := time.LoadLocation("Europe/Paris")
 	if err != nil {
 		log.Fatalf("failed to load location: %v", err)

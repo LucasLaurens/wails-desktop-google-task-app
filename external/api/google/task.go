@@ -34,6 +34,8 @@ func (taskService *TaskServiceWrapper) InsertNewTask(task *tasks.Task) {
 }
 
 func (taskService *TaskServiceWrapper) GetTasksList(max int64) {
+	// todo: create an oauth provider
+	// todo: only using env var
 	id := os.Getenv("TASK_LIST_ID")
 	if id == "" {
 		id = "MTMxMzU1MTg2Nzk4NzI1MTc0MTg6MDow"
@@ -54,15 +56,11 @@ func (taskService *TaskServiceWrapper) GetTasksList(max int64) {
 	}
 }
 
-// Retrieve a token, saves the token, then returns the generated client.
 func GetClient(ctx context.Context, config *oauth2.Config) *http.Client {
-	// The file token.json stores the user's access and refresh tokens, and is
-	// created automatically when the authorization flow completes for the first
-	// time.
+	// todo: only using env var
 	newTokenFileName := "external/api/google/token.json"
 	token, err := newTokenFromFile(newTokenFileName)
 	if err != nil {
-		// todo: try context.Background()
 		token := getTokenFromWeb(ctx, config)
 		saveToken(newTokenFileName, token)
 	}
@@ -70,7 +68,6 @@ func GetClient(ctx context.Context, config *oauth2.Config) *http.Client {
 	return config.Client(context.Background(), token)
 }
 
-// Retrieves a token from a local file.
 func newTokenFromFile(tokenFileName string) (*oauth2.Token, error) {
 	file, err := os.Open(tokenFileName)
 	if err != nil {
@@ -84,14 +81,12 @@ func newTokenFromFile(tokenFileName string) (*oauth2.Token, error) {
 	return token, err
 }
 
-// Request a token from the web, then returns the retrieved token.
 func getTokenFromWeb(ctx context.Context, config *oauth2.Config) *oauth2.Token {
 	token := server.Handle(config, ctx)
 
 	return token
 }
 
-// Saves a token to a file path.
 func saveToken(tokenFileName string, token *oauth2.Token) {
 	fmt.Printf("Saving credential file to: %s\n", tokenFileName)
 
@@ -107,7 +102,6 @@ func saveToken(tokenFileName string, token *oauth2.Token) {
 	defer file.Close()
 
 	if token != nil {
-		// store web token into an internal file
 		json.NewEncoder(file).Encode(token)
 	}
 }

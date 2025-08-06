@@ -12,6 +12,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// todo: move struct to a specific file
 type Server struct {
 	listener net.Listener
 }
@@ -33,6 +34,7 @@ func Handle(config *oauth2.Config, ctx context.Context) *oauth2.Token {
 
 func start() *Server {
 	// todo: create an oauth provider
+	// todo: only using env var
 	url := os.Getenv("URL")
 	if url == "" {
 		url = "localhost:8080"
@@ -69,11 +71,8 @@ func (server Server) init(config *oauth2.Config) *oauth2.Config {
 }
 
 func (authConfig *AuthConfig) oauth2Authorization(ctx context.Context) {
-	// Generate the auth URL
 	authURL := authConfig.config.AuthCodeURL("state-token", oauth2.AccessTypeOffline)
 	fmt.Println("Opening browser for authorization:", authURL)
-
-	// Open system browser in Wails
 	runtime.BrowserOpenURL(ctx, authURL)
 }
 
@@ -94,7 +93,6 @@ func (server Server) getCode() string {
 		_ = http.Serve(server.listener, nil)
 	}()
 
-	// Wait for code
 	code := <-codeChannel
 	close(codeChannel)
 
@@ -106,7 +104,6 @@ func (server Server) getCode() string {
 }
 
 func (authConfig *AuthConfig) getToken(code string) *oauth2.Token {
-	// Exchange code for token
 	token, err := authConfig.config.Exchange(
 		context.Background(),
 		code,

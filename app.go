@@ -53,7 +53,6 @@ func (a *App) RegisterGoogleTaskServiceProvider() (api.TaskServiceWrapper, error
 		)
 	}
 
-	// If modifying these scopes, delete your previously saved token.json.
 	config, err := google.ConfigFromJSON(readByte, tasks.TasksScope)
 	if err != nil {
 		return api.TaskServiceWrapper{}, fmt.Errorf(
@@ -67,6 +66,7 @@ func (a *App) RegisterGoogleTaskServiceProvider() (api.TaskServiceWrapper, error
 		a.ctx,
 		option.WithHTTPClient(client),
 	)
+
 	if err != nil {
 		return api.TaskServiceWrapper{}, fmt.Errorf(
 			"unable to retrieve tasks Client: %v",
