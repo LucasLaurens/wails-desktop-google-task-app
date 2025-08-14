@@ -1,6 +1,7 @@
 package api
 
 import (
+	internalConfig "calandar-desktop-task/internal/config"
 	"calandar-desktop-task/internal/server"
 	"context"
 	"encoding/json"
@@ -13,34 +14,20 @@ import (
 	"google.golang.org/api/tasks/v1"
 )
 
-// todo: move to specific struct file
 type TaskServiceWrapper struct {
 	Service *tasks.Service
 }
 
 func (taskService *TaskServiceWrapper) InsertNewTask(task *tasks.Task) {
-	// todo: declare as global
-	// todo: fix getting env
-	id := os.Getenv("TASK_LIST_ID")
-	if id == "" {
-		id = "MTMxMzU1MTg2Nzk4NzI1MTc0MTg6MDow"
-	}
-
+	id := internalConfig.GetConfig("TASK_LIST_ID")
 	_, err := taskService.Service.Tasks.Insert(id, task).Do()
-
 	if err != nil {
 		log.Fatalf("unable to insert a new task: %v", err)
 	}
 }
 
 func (taskService *TaskServiceWrapper) GetTasksList(max int64) {
-	// todo: create an oauth provider
-	// todo: only using env var
-	id := os.Getenv("TASK_LIST_ID")
-	if id == "" {
-		id = "MTMxMzU1MTg2Nzk4NzI1MTc0MTg6MDow"
-	}
-
+	id := internalConfig.GetConfig("TASK_LIST_ID")
 	list, err := taskService.Service.Tasks.List(id).Do()
 	if err != nil {
 		log.Fatalf("unable to retrieve task lists. %v", err)
@@ -57,8 +44,7 @@ func (taskService *TaskServiceWrapper) GetTasksList(max int64) {
 }
 
 func GetClient(ctx context.Context, config *oauth2.Config) *http.Client {
-	// todo: only using env var
-	newTokenFileName := "external/api/google/token.json"
+	newTokenFileName := internalConfig.GetConfig("TOKEN_PATH")
 	token, err := newTokenFromFile(newTokenFileName)
 	if err != nil {
 		token := getTokenFromWeb(ctx, config)

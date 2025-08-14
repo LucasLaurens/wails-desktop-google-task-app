@@ -1,18 +1,17 @@
 package server
 
 import (
+	"calandar-desktop-task/internal/config"
 	"context"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
-	"os"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/oauth2"
 )
 
-// todo: move struct to a specific file
 type Server struct {
 	listener net.Listener
 }
@@ -33,13 +32,7 @@ func Handle(config *oauth2.Config, ctx context.Context) *oauth2.Token {
 }
 
 func start() *Server {
-	// todo: create an oauth provider
-	// todo: only using env var
-	url := os.Getenv("URL")
-	if url == "" {
-		url = "localhost:8080"
-	}
-
+	url := config.GetConfig("URL")
 	listener, err := net.Listen("tcp", url)
 
 	if err != nil {
@@ -89,7 +82,6 @@ func (server Server) getCode() string {
 			},
 		)
 
-		// todo: manage error
 		_ = http.Serve(server.listener, nil)
 	}()
 
