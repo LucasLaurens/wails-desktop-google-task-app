@@ -1,6 +1,7 @@
 package main
 
 import (
+	"calandar-desktop-task/internal/errors"
 	"embed"
 
 	"github.com/wailsapp/wails/v2"
@@ -43,7 +44,11 @@ func main() {
 		},
 	})
 
-	if err != nil {
-		println("Error:", err.Error())
-	}
+	errors.Fatal(
+		"The calandar desktop task return an error and cannot be started correctly: %v",
+		errors.FatalError{
+			Err:  err,
+			Args: []interface{}{},
+		},
+	)
 }

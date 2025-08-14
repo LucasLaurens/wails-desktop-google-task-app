@@ -2,11 +2,11 @@ package api
 
 import (
 	internalConfig "calandar-desktop-task/internal/config"
+	"calandar-desktop-task/internal/errors"
 	"calandar-desktop-task/internal/server"
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
@@ -18,33 +18,53 @@ type TaskServiceWrapper struct {
 	Service *tasks.Service
 }
 
+type TaskList struct {
+	*tasks.Tasks
+}
+
 func (taskService *TaskServiceWrapper) InsertNewTask(task *tasks.Task) {
 	id := internalConfig.GetConfig("TASK_LIST_ID")
 	_, err := taskService.Service.Tasks.Insert(id, task).Do()
-	if err != nil {
-		log.Fatalf("unable to insert a new task: %v", err)
-	}
+
+	errors.Fatal(
+		"unable to insert a new task: %v",
+		errors.FatalError{
+			Err:  err,
+			Args: []interface{}{},
+		},
+	)
 }
 
 func (taskService *TaskServiceWrapper) GetTasksList(max int64) {
 	id := internalConfig.GetConfig("TASK_LIST_ID")
 	list, err := taskService.Service.Tasks.List(id).Do()
-	if err != nil {
-		log.Fatalf("unable to retrieve task lists. %v", err)
-	}
 
+	errors.Fatal(
+		"unable to retrieve task lists. %v",
+		errors.FatalError{
+			Err:  err,
+			Args: []interface{}{},
+		},
+	)
+
+	taskList := TaskList{list}
+	taskList.displayTaskListItems()
+}
+
+func (taskList *TaskList) displayTaskListItems() {
 	fmt.Println("Task Lists:")
-	if len(list.Items) <= 0 {
+	if len(taskList.Items) <= 0 {
 		fmt.Println("no tasks ar available")
 	}
 
-	for _, item := range list.Items {
+	for _, item := range taskList.Items {
 		fmt.Printf("%s (%s)\n", item.Title, item.Status)
 	}
 }
 
 func GetClient(ctx context.Context, config *oauth2.Config) *http.Client {
 	newTokenFileName := internalConfig.GetConfig("TOKEN_PATH")
+	// todo: use refresh token when it is expired
 	token, err := newTokenFromFile(newTokenFileName)
 	if err != nil {
 		token := getTokenFromWeb(ctx, config)
@@ -81,9 +101,14 @@ func saveToken(tokenFileName string, token *oauth2.Token) {
 		os.O_RDWR|os.O_CREATE|os.O_TRUNC,
 		0600,
 	)
-	if err != nil {
-		log.Fatalf("Unable to cache oauth token: %v", err)
-	}
+
+	errors.Fatal(
+		"Unable to cache oauth token: %v",
+		errors.FatalError{
+			Err:  err,
+			Args: []interface{}{},
+		},
+	)
 
 	defer file.Close()
 

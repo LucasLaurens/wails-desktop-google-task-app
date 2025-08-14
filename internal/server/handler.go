@@ -2,6 +2,7 @@ package server
 
 import (
 	"calandar-desktop-task/internal/config"
+	"calandar-desktop-task/internal/errors"
 	"context"
 	"fmt"
 	"log"
@@ -35,9 +36,13 @@ func start() *Server {
 	url := config.GetConfig("URL")
 	listener, err := net.Listen("tcp", url)
 
-	if err != nil {
-		log.Fatalf("%v", err)
-	}
+	errors.Fatal(
+		"The server could not start: %v",
+		errors.FatalError{
+			Err:  err,
+			Args: []interface{}{},
+		},
+	)
 
 	return &Server{
 		listener: listener,
@@ -49,6 +54,7 @@ func (server *Server) stop() {
 }
 
 func (server Server) init(config *oauth2.Config) *oauth2.Config {
+	// todo: from http to https (with traefik & mkcert?)
 	redirectURL := fmt.Sprintf(
 		"http://%v",
 		server.listener.Addr().String(),
@@ -72,6 +78,12 @@ func (authConfig *AuthConfig) oauth2Authorization(ctx context.Context) {
 func (server Server) getCode() string {
 	codeChannel := make(chan string)
 
+	/**
+	* Note: Parallelization of the call
+	* to allow retrieval of the authentication code
+	* after authorization on Google and message returned
+	* once the step is complete
+	 */
 	go func() {
 		http.HandleFunc(
 			"/",
@@ -82,6 +94,7 @@ func (server Server) getCode() string {
 			},
 		)
 
+		// todo: manage the net/http Serve error
 		_ = http.Serve(server.listener, nil)
 	}()
 
@@ -101,9 +114,13 @@ func (authConfig *AuthConfig) getToken(code string) *oauth2.Token {
 		code,
 	)
 
-	if err != nil {
-		log.Fatalf("unable to retrieve token from web: %s", err)
-	}
+	errors.Fatal(
+		"unable to retrieve token from web: %s",
+		errors.FatalError{
+			Err:  err,
+			Args: []interface{}{},
+		},
+	)
 
 	return token
 }
