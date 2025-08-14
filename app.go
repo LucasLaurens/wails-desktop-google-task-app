@@ -7,25 +7,24 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/joho/godotenv"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
 	"google.golang.org/api/tasks/v1"
 )
 
-// App struct
 type App struct {
 	ctx context.Context
 }
 
-// NewApp creates a new App application struct
 func NewApp() *App {
 	return &App{}
 }
 
-// startup is called when the app starts. The context is saved
-// so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
+	godotenv.Load()
+
 	a.ctx = ctx
 	taskService, err := a.RegisterGoogleTaskServiceProvider()
 	if err != nil {
@@ -38,14 +37,8 @@ func (a *App) startup(ctx context.Context) {
 	a.RegisterTaskCreationListener(taskService)
 }
 
-// Greet returns a greeting for the given name
-func (a *App) Greet(name string) string {
-	return fmt.Sprintf("Hello %s, It's show time!", name)
-}
-
 func (a *App) RegisterGoogleTaskServiceProvider() (api.TaskServiceWrapper, error) {
-	// todo: replace by env var
-	readByte, err := os.ReadFile("external/api/google/credentials.json")
+	readByte, err := os.ReadFile(os.Getenv("CREDENTIALS_PATH"))
 	if err != nil {
 		return api.TaskServiceWrapper{}, fmt.Errorf(
 			"unable to read client secret file: %v",
