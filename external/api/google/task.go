@@ -64,9 +64,9 @@ func (taskList *TaskList) displayTaskListItems() {
 
 func GetClient(ctx context.Context, config *oauth2.Config) *http.Client {
 	newTokenFileName := internalConfig.GetConfig("TOKEN_PATH")
-	// todo: use refresh token when it is expired
 	token, err := newTokenFromFile(newTokenFileName)
-	if err != nil {
+
+	if err != nil || !token.Valid() {
 		token := getTokenFromWeb(ctx, config)
 		saveToken(newTokenFileName, token)
 	}
